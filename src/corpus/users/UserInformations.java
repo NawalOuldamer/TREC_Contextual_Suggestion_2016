@@ -4,11 +4,14 @@
 package corpus.users;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Scanner;
 
 /**
  * @author nawalouldamer
@@ -23,22 +26,37 @@ import com.google.gson.JsonParser;
 public class UserInformations {
 
 	public static void main(String[] args) throws IOException {
-		FileWriter file = new FileWriter("./files/doc.txt");
 		BufferedReader br = new BufferedReader(new FileReader("./files/batch_requests.json"));
 		String line = "";
 		while ((line = br.readLine()) != null) {
 			//saveUserTextFile(getUserId(line), getUserTags(line));
 			//saveUserXmlFile(getUserId(line), getUserTags(line));
-			Iterator<String> it = getUserDocuments(line).iterator();
-			while (it.hasNext()) {
-				file.write(it.next()+ "\n");
-			}
+			saveUserTextFile(getUserId(line), userDocument(getUserDocuments(line)));
+			saveUserXmlFile(getUserId(line), userDocument(getUserDocuments(line)));
+
 
 		}
 		br.close();
-		file.close();
 	}
 
+
+	public static HashSet<String> userDocument(HashSet<String> userDoc) throws FileNotFoundException{
+		HashSet<String> documentUser = new HashSet<String>();
+		Iterator<String> it = userDoc.iterator();
+		while (it.hasNext()) {
+			try {
+				Scanner s = new Scanner(new File("./text/"+it.next()+".txt"));
+				while (s.hasNextLine()) {
+					documentUser.add(s.nextLine());				
+				}
+				s.close();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+		return documentUser;
+
+	}
 	public static String getUserId(String user_line){
 		JsonElement jelement = new JsonParser().parse(user_line);
 		JsonObject jobject = jelement.getAsJsonObject();
@@ -118,7 +136,7 @@ public class UserInformations {
 	}
 
 	public static void saveUserXmlFile(String user_id, HashSet<String> user_tags) throws IOException{
-		FileWriter file = new FileWriter("./users_xml_file/"+user_id+".xml");
+		FileWriter file = new FileWriter("./users_xml_document_file/"+user_id+".xml");
 		file.write("<DOC>\n");
 		file.write("	<DOCNO>" + user_id + "</DOCNO> \n");
 
@@ -132,7 +150,7 @@ public class UserInformations {
 		file.close();
 	}
 	public static void saveUserTextFile(String user_id, HashSet<String> user_tags) throws IOException{
-		FileWriter file = new FileWriter("./users_text_file/"+user_id+".txt");
+		FileWriter file = new FileWriter("./users_text_document_file/"+user_id+".txt");
 		Iterator<String> it = user_tags.iterator();
 		while (it.hasNext()) {
 			file.write(it.next()+ " ");

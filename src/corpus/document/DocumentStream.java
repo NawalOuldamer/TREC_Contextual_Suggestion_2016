@@ -1,7 +1,7 @@
 /**
  * 
  */
-package corpus;
+package corpus.document;
 
 /**
  * @author nawalouldamer
@@ -12,7 +12,6 @@ package corpus;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Scanner;
 
 import org.apache.tika.language.LanguageIdentifier;
@@ -37,39 +36,26 @@ public class DocumentStream {
 	public static String path_documents_collection_text ="./text/";
 
 	public static void main(String[] args) throws IOException {		
-		init();
-		Scanner sn = new Scanner(new File("./files/id_urls_users_doc.txt"));
-		while (sn.hasNextLine()) {			
-			String vect[] = sn.nextLine().split("\t"); 
-			getTextUrl(vect[1],vect[3],Integer.parseInt(vect[0]), vect[2]);	
-		}
-		sn.close();
-	}
+		//init();
+		Scanner sn = new Scanner(new File("./files/collection_2015.csv"));
+		int i = 0;
+		while (sn.hasNextLine()) {
+			
+			String vect[] = sn.nextLine().split(",");
+			if(vect.length==4){
+				getTextUrl(vect[0],vect[3],i, vect[2]);	
+				System.out.println(vect[0]);
 
-
-	public static void init () throws IOException{
-
-		HashSet<String> doc = new HashSet<String>();
-		Scanner sn = new Scanner(new File("./files/users_doc.txt"));
-		while (sn.hasNextLine()) {	
-			doc.add(sn.nextLine());
-		}
-		sn.close();
-		HashSet<String> doc2 = new HashSet<String>();
-		int id =0;
-		FileWriter file = new FileWriter("./files/id_urls_users_doc.txt");
-		Scanner s = new Scanner(new File("./files/collection_2015.csv"));
-		while (s.hasNextLine()) {	
-			String vect[] = s.nextLine().split(",");
-			if(doc.contains(vect[0]) && !doc2.contains(vect[0])){
-				file.write(id+"\t"+vect[0]+"\t"+vect[2]+"\t"+vect[3]+"\n");
-				doc2.add(vect[0]);
-				id++;
+			}
+			else {
+				getTextUrl(vect[0],"",i, vect[2]);
+				System.err.println(vect[0]);
 			}
 		}
-		s.close();	
-		file.close();
+		sn.close();
 	}
+
+
 	public static void getTextUrl(String id_doc ,String title,int id ,String url) throws IOException{
 		Document doc = null;
 		try {
@@ -77,6 +63,7 @@ public class DocumentStream {
 			LanguageIdentifier identifier = new LanguageIdentifier(doc.text());
 			String language = identifier.getLanguage();
 			if(language.equals("en")){
+				System.out.println(id_doc);
 				fileDocSave(id_doc,id, title, doc.text(), url);
 				fileTextSave(id_doc,id, title, doc.text());
 			}
